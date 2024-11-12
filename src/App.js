@@ -13,6 +13,17 @@ function App() {
   const [sortOrder, setSortOrder] = useState('priority');
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadPreferences = useCallback(() => {
+    setCategory(localStorage.getItem('category') || 'status');
+    setSortOrder(localStorage.getItem('sortOrder') || 'priority');
+  }, []);
+
+  const savePreferences = useCallback((preferences) => {
+    Object.keys(preferences).forEach((key) => {
+      localStorage.setItem(key, preferences[key]);
+    });
+  }, []);
+
   useEffect(() => {
     loadPreferences();
     fetch(API_ENDPOINT)
@@ -23,7 +34,7 @@ function App() {
         setUserLookup(mapUsersById(users));
       })
       .catch((error) => console.error('Error fetching data:', error));
-  }, []);
+  }, [loadPreferences]);
 
   useEffect(() => {
     if (tickets.length === 0) return;
@@ -37,7 +48,7 @@ function App() {
       setCategory(newCategory);
       savePreferences({ category: newCategory });
     },
-    [setCategory]
+    [setCategory,savePreferences]
   );
 
   const handleSortOrderChange = useCallback(
@@ -46,19 +57,8 @@ function App() {
       setSortOrder(newSortOrder);
       savePreferences({ sortOrder: newSortOrder });
     },
-    [setSortOrder]
+    [setSortOrder,savePreferences]
   );
-
-  const savePreferences = useCallback((preferences) => {
-    Object.keys(preferences).forEach((key) => {
-      localStorage.setItem(key, preferences[key]);
-    });
-  }, []);
-
-  const loadPreferences = useCallback(() => {
-    setCategory(localStorage.getItem('category') || 'status');
-    setSortOrder(localStorage.getItem('sortOrder') || 'priority');
-  }, []);
 
   return (
     <div>
